@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { TagService } from './tag.service';
 import { Controller, Get } from '@nestjs/common';
-import { TagEntity } from './entity/tag.entity';
 
 @Controller('tags')
 export class TagController {

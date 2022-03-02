@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
+import { ConnectionOptions } from "typeorm"
 
-import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 
-export default {
+const config: ConnectionOptions = {
   type: 'postgres',
   host: 'localhost',
   port: 5434,
@@ -10,10 +10,13 @@ export default {
   password: '123',
   database: 'mediumclone',
   entities: [__dirname + '/**/*.entity{.ts,.js}'],
-  autoLoadEntities: true,
+  // autoLoadEntities: true,
   synchronize: false,
-  migrations: [__dirname + '/migrations/**/*.{.ts,.js}'],
+  //migrationsRun: true,
+  migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
   cli: {
-      migrationsDir: 'src/migrations',
+    migrationsDir: 'src/migrations',
   },
-} as TypeOrmModuleOptions;
+}
+
+export default config;
