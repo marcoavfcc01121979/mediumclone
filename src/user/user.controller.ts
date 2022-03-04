@@ -10,7 +10,7 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserEntity } from './entity/user.entity';
+import { UserResponseInterface } from './types/userResponse.interface';
 
 @Controller()
 export class UserController {
@@ -19,9 +19,10 @@ export class UserController {
   @Post('users')
   async createUser(
     @Body('user') createUserDto: CreateUserDto,
-  ): Promise<UserEntity> {
+  ): Promise<UserResponseInterface> {
     console.log('createUser', createUserDto);
-    return this.userService.createUser(createUserDto);
+    const user = await this.userService.createUser(createUserDto);
+    return this.userService.buildUserResponse(user);
   }
 
   @Get()
