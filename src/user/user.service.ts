@@ -39,7 +39,7 @@ export class UserService {
     return await this.userRepository.save(newUser);
   }
 
-  async findById(id: number): Promise<UserEntity> {
+  async findById(id: number | string): Promise<UserEntity> {
     return this.userRepository.findOne(id);
   }
 

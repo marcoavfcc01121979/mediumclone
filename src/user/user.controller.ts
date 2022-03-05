@@ -16,6 +16,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseInterface } from './types/userResponse.interface';
 import { LoginUserDto } from './dto/loginUser.dto';
 import { Request } from 'express';
+import { ExpressRequest } from './types/expressRequest.interfaces';
 
 @Controller()
 export class UserController {
@@ -43,9 +44,12 @@ export class UserController {
   }
 
   @Get('user')
-  async currentUser(@Req() request: Request): Promise<UserResponseInterface> {
+  async currentUser(
+    @Req() request: ExpressRequest,
+  ): Promise<UserResponseInterface> {
     // console.log('request', request);
-    return 'currentUser' as any;
+    // console.log('current user in controller', request.user);
+    return this.userService.buildUserResponse(request.user);
   }
 
   @Get()
