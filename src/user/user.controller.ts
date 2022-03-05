@@ -8,12 +8,14 @@ import {
   Delete,
   UsePipes,
   ValidationPipe,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseInterface } from './types/userResponse.interface';
 import { LoginUserDto } from './dto/loginUser.dto';
+import { Request } from 'express';
 
 @Controller()
 export class UserController {
@@ -38,6 +40,12 @@ export class UserController {
     // return 'Login' as any;
     const user = await this.userService.login(loginDto);
     return this.userService.buildUserResponse(user);
+  }
+
+  @Get('user')
+  async currentUser(@Req() request: Request): Promise<UserResponseInterface> {
+    // console.log('request', request);
+    return 'currentUser' as any;
   }
 
   @Get()
