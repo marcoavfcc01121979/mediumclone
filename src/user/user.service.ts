@@ -75,6 +75,15 @@ export class UserService {
     return user;
   }
 
+  async updateUser(
+    userId: number,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserEntity> {
+    const user = await this.findById(userId);
+    Object.assign(user, updateUserDto);
+    return await this.userRepository.save(user);
+  }
+
   generateJwt(user: UserEntity): string {
     return sign(
       {
