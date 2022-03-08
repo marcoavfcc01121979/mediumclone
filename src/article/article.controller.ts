@@ -1,3 +1,4 @@
+import { AuthGuard } from '../user/guards/auth.guard';
 import {
   Controller,
   Get,
@@ -6,18 +7,28 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { User } from '../user/decorators/user.decorator';
+import { UserEntity } from '../user/entity/user.entity';
 
 @Controller('articles')
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
   @Post()
-  create(@Body() createArticleDto: CreateArticleDto) {
-    return this.articleService.create(createArticleDto);
+  @UseGuards(AuthGuard)
+  async create(
+    @User() currentUser: UserEntity,
+    @Body('article') createArticleDto: CreateArticleDto,
+  ): Promise<any> {
+    return await this.articleService.createArticle(
+      currentUser,
+      createArticleDto,
+    );
   }
 
   @Get()
