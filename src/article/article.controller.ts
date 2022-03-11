@@ -26,8 +26,11 @@ export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
   @Get()
-  async findAll(@User('id') currentUserId: number, @Query() query: any): Promise<ArticlesResponseInterface> {
-    return await this.articleService.findAll(currentUserId, query);
+  async findAll(
+    // @User('id') currentUserId: number, 
+    @Query() query: any): Promise<ArticlesResponseInterface> {
+    // return await this.articleService.findAll(currentUserId, query);
+    return await this.articleService.findAll(query);
     // return await this.articleService.findAll();
   }
 

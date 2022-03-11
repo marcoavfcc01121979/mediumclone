@@ -1,3 +1,4 @@
+import { UserResponseInterface } from './../user/types/userResponse.interface';
 import { UserEntity } from '@app/user/entity/user.entity';
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,15 +15,46 @@ export class ArticleService {
   constructor(
     @InjectRepository(ArticleEntity)
     private readonly articleRepository: Repository<ArticleEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async findAll(currentUserId: number, query: any): Promise<ArticlesResponseInterface> {
+  async findAll(
+    // currentUserId: number, 
+    query: any): Promise<ArticlesResponseInterface> {
     const queryBuilder = getRepository(ArticleEntity)
       .createQueryBuilder('articles',)
       .leftJoinAndSelect('articles.author', 'author');
 
-    const articles = await queryBuilder.getMany()
+    if (query.tag) {
+      queryBuilder.andWhere('articles.tagList LIKE :tag', {
+        tag: `%${query.tag}`,
+      });
+    }
+
+    if (query.author) {
+      const author = await this.userRepository.findOne({
+        username: query.author,
+      })
+    
+      queryBuilder.andWhere('articles.authorId = :id', {
+        id: author.id,
+      })
+    }
+
+    queryBuilder.orderBy('articles.createdAt', 'DESC');
+
     const articlesCount = await queryBuilder.getCount()
+
+    if (query.limit) {
+      queryBuilder.limit(query.limit);
+    }
+
+    if (query.offset) {
+      queryBuilder.offset(query.offset);
+    }
+
+    const articles = await queryBuilder.getMany()
 
     return { articles, articlesCount };
   }
