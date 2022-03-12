@@ -20,7 +20,7 @@ export class ArticleService {
   ) {}
 
   async findAll(
-    // currentUserId: number, 
+    currentUserId: number, 
     query: any): Promise<ArticlesResponseInterface> {
     const queryBuilder = getRepository(ArticleEntity)
       .createQueryBuilder('articles',)
@@ -42,6 +42,21 @@ export class ArticleService {
       })
     }
 
+    if (query.favorited) {
+      const author = await this.userRepository.findOne({
+        username: query.favorited,
+      }, { relations: ['favorites'] })
+      const ids = author.favorites.map((el) => el.id)
+
+      if (ids.length > 0) {
+        queryBuilder.andWhere('articles.authorId IN (:...ids)', { ids });
+      } else {
+        queryBuilder.andWhere('1=0');
+      }
+
+      console.log('author', author);
+    }
+
     queryBuilder.orderBy('articles.createdAt', 'DESC');
 
     const articlesCount = await queryBuilder.getCount()
@@ -52,6 +67,15 @@ export class ArticleService {
 
     if (query.offset) {
       queryBuilder.offset(query.offset);
+    }
+
+    let favoriteIds: number[] = []
+
+    if (currentUserId) {
+      const currentUser = await this.userRepository.findOne(currentUserId, {
+        relations: ['favorites']
+      })
+      favoriteIds = currentUser.favorites.map((favorite) => favorite.id)
     }
 
     const articles = await queryBuilder.getMany()
@@ -99,6 +123,26 @@ export class ArticleService {
     }
 
     return article
+  }
+
+  async deleteArticleFromFavorites(slug: string, userId: number): Promise<ArticleEntity> {
+    const article = await this.findBySlug(slug)
+
+    const user = await this.userRepository.findOne(userId, {
+      relations: ['favorites'],
+    })
+
+    // console.log('user', user);
+    const articleIndex = user.favorites.findIndex((articlesInFavorites) => articlesInFavorites.id === article.id,);
+
+    if (articleIndex >= 0) {
+      user.favorites.splice(articleIndex, 1);
+      article.favoritesCount--;
+      await this.userRepository.save(user);
+      await this.articleRepository.save(article); 
+    }
+
+    return article;
   }
 
   buildArticleResponse(article: ArticleEntity): ArticleResponseInterface {

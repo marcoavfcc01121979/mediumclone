@@ -27,10 +27,10 @@ export class ArticleController {
 
   @Get()
   async findAll(
-    // @User('id') currentUserId: number, 
+    @User('id') currentUserId: number, 
     @Query() query: any): Promise<ArticlesResponseInterface> {
-    // return await this.articleService.findAll(currentUserId, query);
-    return await this.articleService.findAll(query);
+    return await this.articleService.findAll(currentUserId, query);
+    //return await this.articleService.findAll(query);
     // return await this.articleService.findAll();
   }
 
@@ -78,6 +78,14 @@ export class ArticleController {
     return this.articleService.buildArticleResponse(article);
   }
 
+  @Delete(':slug/favorite')
+  @UseGuards(AuthGuard)
+  async deleteArticleFromFavorites(@User('id') currentUserId: number, @Param('slug') slug: string): Promise<ArticleResponseInterface> {
+    const article = await this.articleService.deleteArticleFromFavorites(slug, currentUserId,);
+
+    return this.articleService.buildArticleResponse(article);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.articleService.findOne(+id);
@@ -86,10 +94,5 @@ export class ArticleController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto) {
     return this.articleService.update(+id, updateArticleDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.articleService.remove(+id);
   }
 }
