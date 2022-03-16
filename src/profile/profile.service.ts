@@ -18,7 +18,7 @@ export class ProfileService {
   }
 
   async getProfile(
-    // currentUserId: number, 
+    currentUserId: number, 
     profileUserName: string): Promise<ProfileType> {
     const user = await this.userRepository.findOne({
       username: profileUserName,
@@ -28,7 +28,12 @@ export class ProfileService {
       throw new HttpException('Profile does not exist', HttpStatus.NOT_FOUND);
     }
 
-    return { ...user, following: false }
+    const follow = await this.followRepository.findOne({
+      followerId: currentUserId,
+      followingId: user.id
+    })
+
+    return { ...user, following: Boolean(follow) }
   }
 
   async followProfile(currentUserId: number, profileUsername: string): Promise<ProfileType> {
@@ -60,6 +65,42 @@ export class ProfileService {
     }
 
     return { ...user, following: true };
+  }
+
+  async unfollowProfile(currentUserId: number, profileUsername: string): Promise<ProfileType> {
+    const user = await this.userRepository.findOne({
+      username: profileUsername,
+    });
+
+    if (!user) {
+      throw new HttpException('Profile does not exist', HttpStatus.NOT_FOUND);
+    }
+
+    if (currentUserId === user.id) {
+      throw new HttpException(
+        'Follow and Following cant be equal', 
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+
+    await this.followRepository.delete({
+      followerId: currentUserId,
+      followingId: user.id
+    })
+
+    /* const follow = await this.followRepository.findOne({
+      followerId: currentUserId,
+      followingId: user.id
+    });
+
+    if (!follow) {
+      const followToCreate = new FollowEntity();
+      followToCreate.followerId = currentUserId;
+      followToCreate.followingId = user.id;
+      await this.followRepository.save(followToCreate);
+    } */
+
+    return { ...user, following: false };
   }
 
   buildProfileResponse(profile: ProfileType): ProfileResponseInterface {

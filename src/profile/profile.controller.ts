@@ -17,11 +17,11 @@ export class ProfileController {
 
   @Get(':username')
   async getProfile(
-    // @User('id') currentUserId: number, 
+    @User('id') currentUserId: number, 
     @Param('username') profileUsername: string,
   ): Promise<ProfileResponseInterface> {
-    // const profile = await this.profileService.getProfile(currentUserId, profileUsername)
-    const profile = await this.profileService.getProfile(profileUsername)
+    const profile = await this.profileService.getProfile(currentUserId, profileUsername)
+    // const profile = await this.profileService.getProfile(profileUsername)
 
     return this.profileService.buildProfileResponse(profile);
   }
@@ -32,6 +32,17 @@ export class ProfileController {
     @User('id') currentUser: number, 
     @Param('username') profileUser: string): Promise<ProfileResponseInterface> {
     const profile = await this.profileService.followProfile(currentUser, profileUser)
+    // const profile = await this.profileService.getProfile(profileUser)
+
+    return this.profileService.buildProfileResponse(profile);
+  }
+
+  @Delete(':username/follow')
+  @UseGuards(AuthGuard)
+  async unfollowProfile(
+    @User('id') currentUser: number, 
+    @Param('username') profileUser: string): Promise<ProfileResponseInterface> {
+    const profile = await this.profileService.unfollowProfile(currentUser, profileUser)
     // const profile = await this.profileService.getProfile(profileUser)
 
     return this.profileService.buildProfileResponse(profile);
