@@ -20,6 +20,7 @@ import { User } from '../user/decorators/user.decorator';
 import { UserEntity } from '../user/entity/user.entity';
 import { ArticleResponseInterface } from './types/articleResponse.interface';
 import { ArticlesResponseInterface } from './types/articlesResponse.interface';
+import { query } from 'express';
 
 @Controller('articles')
 export class ArticleController {
@@ -32,6 +33,12 @@ export class ArticleController {
     return await this.articleService.findAll(currentUserId, query);
     //return await this.articleService.findAll(query);
     // return await this.articleService.findAll();
+  }
+
+  @Get('feed')
+  @UseGuards(AuthGuard)
+  async getFeed(@User('id') currentUserId: number, @Query() query: any): Promise<ArticlesResponseInterface> {
+    return await this.articleService.getFeed(currentUserId, query);
   }
 
   @Post()
@@ -84,15 +91,5 @@ export class ArticleController {
     const article = await this.articleService.deleteArticleFromFavorites(slug, currentUserId,);
 
     return this.articleService.buildArticleResponse(article);
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.articleService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto) {
-    return this.articleService.update(+id, updateArticleDto);
   }
 }
